@@ -3,11 +3,12 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace backend.Models
 {
+    [Table("Stocks")]
     public class Stock
     {
         public int Id { get; set; }
         public string Symbol { get; set; } = string.Empty;
-        public string CpmpanyName { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
         [Column(TypeName = "decimal(18,2)")]
         public decimal Purchase { get; set; }
         [Column(TypeName = "decimal(18,2)")]

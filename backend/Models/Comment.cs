@@ -1,5 +1,8 @@
-﻿namespace backend.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace backend.Models
 {
+    [Table("Comments")]
     public class Comment
     {
         public int Id { get; set; }
