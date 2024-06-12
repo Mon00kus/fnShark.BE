@@ -49,7 +49,7 @@ namespace backend.Repository
             var existingStock = await _context.Stocks.FirstOrDefaultAsync(x => x.Id == id);
             if (existingStock == null) 
             {
-                return null;
+                return null!;
             }
             existingStock.Symbol = stockDto.Symbol;
             existingStock.CompanyName = stockDto.CompanyName;
