@@ -20,6 +20,10 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var stocks = await _stockRepository.GetAllAsync();
             var stocksDto = stocks.Select(s => s.ToStockDto());
             return Ok(stocksDto);
@@ -53,9 +57,13 @@ namespace backend.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var stockModel = await _stockRepository.UpdateAsync(id, updateDto);
             if (stockModel == null)
             {
@@ -65,7 +73,7 @@ namespace backend.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> DeleteAsync([FromRoute] int id)
         {
             var stockModel = await _stockRepository.DeleteAsync(id);

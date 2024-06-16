@@ -17,7 +17,7 @@ namespace backend.Mappers
                 LastDiv = stockModel.LastDiv,
                 Industry = stockModel.Industry,
                 MarketCap = stockModel.MarketCap,
-                Comments = null! //stockModel.Comments.Select(c=>c.ToCommentDto()).ToList()
+                Comments = stockModel.Comments.Select(c => c.ToCommentDto()).ToList() // Comments = null!
             };
         }
         public static Stock ToStockFromCreateDto(this CreateStockRequestDto stockDto)

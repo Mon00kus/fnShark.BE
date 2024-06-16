@@ -13,7 +13,25 @@ namespace backend.Mappers
                 Title = commentModel.Title,
                 Content = commentModel.Content,
                 CreatedOn = commentModel.CreateOn,                
-                StockId = commentModel.StockId
+                StockId = commentModel.StockId                
+            };
+        }
+        public static Comment ToCommentFromCreate(this CreateCommentDto commentDto, int stockId)
+        {
+            return new Comment
+            {                
+                Title = commentDto.Title,
+                Content = commentDto.Content,                                
+                StockId = stockId
+            };
+        }
+        public static Comment ToCommentFromUpdate(this UpdateCommentRequestDto commentDto, int stockId)
+        {
+            return new Comment
+            {
+                Title = commentDto.Title,
+                Content = commentDto.Content,
+                StockId = stockId
             };
         }
     }

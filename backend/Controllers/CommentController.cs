@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+﻿using backend.Dtos.Comment;
+using backend.Interfaces;
+using backend.Mappers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
@@ -8,41 +9,78 @@ namespace backend.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        public CommentController()
+        private readonly ICommentRepository _commentRepository;
+        private readonly IStockRepository _stockRepository;
+
+        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository)
         {
-            
+            _commentRepository = commentRepository;
+            _stockRepository = stockRepository;
         }
 
-        // GET: api/<CommentController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var comments =  await _commentRepository.GetAllAsync();
+            var commentDto = comments.Select(s => s.ToCommentDto());
+            return Ok(commentDto);
         }
 
-        // GET api/<CommentController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            return "value";
+            var comment = await _commentRepository.GetByIdAsync(id);
+            if (comment == null)
+            {
+                return NotFound();
+            }
+            return Ok(comment.ToCommentDto());
         }
 
-        // POST api/<CommentController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("{stockId:int}")]
+        public async Task<IActionResult> Create([FromRoute] int stockId, CreateCommentDto commentDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!await _stockRepository.StockExist(stockId))
+            {
+                return BadRequest("Stock no existe");
+            }
+            var comment = commentDto.ToCommentFromCreate(stockId);
+            await _commentRepository.CreateAsync(comment);
+            return CreatedAtAction(nameof(GetById), new {id=comment}, comment.ToCommentDto());
         }
 
-        // PUT api/<CommentController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateCommentRequestDto updateDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var comment = await _commentRepository.UpdateAsync(id, updateDto.ToCommentFromUpdate(id));
+            if (comment == null)
+            {
+                return NotFound("Comentario no encontrado");
+            }
+            return Ok(comment!.ToCommentDto());
         }
 
-        // DELETE api/<CommentController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            var comment = await _commentRepository.DeleteAsync(id);
+            if (comment == null)
+            {
+                return NotFound("El comentario no existe");
+            }
+            return Ok(comment);
         }
     }
 }
