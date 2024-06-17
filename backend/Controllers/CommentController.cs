@@ -54,7 +54,7 @@ namespace backend.Controllers
             }
             var comment = commentDto.ToCommentFromCreate(stockId);
             await _commentRepository.CreateAsync(comment);
-            return CreatedAtAction(nameof(GetById), new {id=comment}, comment.ToCommentDto());
+            return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment.ToCommentDto());           
         }
 
         [HttpPut("{id:int}")]
