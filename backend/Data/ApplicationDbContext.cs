@@ -36,6 +36,8 @@ namespace backend.Data
                     NormalizedName = "GUEST"
                 }
             };
+
+            builder.Entity<IdentityRole>().HasData(roles);
         }
     }
 }
