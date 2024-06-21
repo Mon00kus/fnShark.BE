@@ -1,6 +1,9 @@
 ﻿using backend.Dtos.Comment;
+using backend.Extensions;
 using backend.Interfaces;
 using backend.Mappers;
+using backend.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -11,11 +14,13 @@ namespace backend.Controllers
     {
         private readonly ICommentRepository _commentRepository;
         private readonly IStockRepository _stockRepository;
+        private readonly UserManager<AppUser> _userManager;
 
-        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository)
+        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository, UserManager<AppUser> userManager)
         {
             _commentRepository = commentRepository;
             _stockRepository = stockRepository;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -41,7 +46,7 @@ namespace backend.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        [HttpPost("{stockId:int}")]
+        [HttpPost("{symbol:alpha}")]
         public async Task<IActionResult> Create([FromRoute] int stockId, CreateCommentDto commentDto)
         {
             if (!ModelState.IsValid)
@@ -52,7 +57,10 @@ namespace backend.Controllers
             {
                 return BadRequest("Stock no existe");
             }
+            var userName = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(userName);
             var comment = commentDto.ToCommentFromCreate(stockId);
+            comment.AppUserId = appUser!.Id;
             await _commentRepository.CreateAsync(comment);
             return CreatedAtAction(nameof(GetById), new { id = comment.Id }, comment.ToCommentDto());           
         }

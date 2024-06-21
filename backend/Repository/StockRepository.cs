@@ -36,10 +36,8 @@ namespace backend.Repository
         }
 
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
-        {
-            //return await _context.Stocks.ToListAsync();
-            //return await _context.Stocks.Include(c=>c.Comments).ToListAsync();
-            var stocks = _context.Stocks.Include(c=>c.Comments).AsQueryable();
+        {          
+            var stocks = _context.Stocks.Include(c=>c.Comments).ThenInclude(a => a.AppUser).AsQueryable();
             if (!string.IsNullOrWhiteSpace(query.CompanyName))
             {
                 stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
@@ -54,15 +52,13 @@ namespace backend.Repository
                {
                     stocks = query.IsDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.CompanyName);
                }
-            }
-            //return await stocks.ToListAsync();
+            }         
             var skipNumber = (query.PageNumber - 1) * query.PageSize;
             return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
-        {
-            //return await _context.Stocks.FindAsync(id);
+        {            
             return await _context.Stocks.Include(c=>c.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
 
