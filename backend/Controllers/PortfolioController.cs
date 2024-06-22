@@ -15,12 +15,14 @@ namespace backend.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IStockRepository _stockRepository;
         private readonly IPortfolioRepository _portfolioRepository;
+        private readonly IFMPService _fMPService;
 
-        public PortfolioController(UserManager<AppUser> userManager, IStockRepository stockRepository, IPortfolioRepository portfolioRepository)
+        public PortfolioController(UserManager<AppUser> userManager, IStockRepository stockRepository, IPortfolioRepository portfolioRepository, IFMPService fMPService)
         {
             _userManager = userManager;
             _stockRepository = stockRepository;
             _portfolioRepository = portfolioRepository;
+            _fMPService = fMPService;
         }
         [HttpGet]
         [Authorize]
@@ -38,18 +40,19 @@ namespace backend.Controllers
             var username = User.GetUserName();
             var appUser = await _userManager.FindByNameAsync(username);
             var stock = await _stockRepository.GetBySymbolAsync(symbol);
-            //if (stock == null)
-            //{
-            //stock = await _fmpService.FindStockBySymbolAsync(symbol);
-            //if (stock == null)
-            //{
-            //    return BadRequest("Stock does not exists");
-            //}
-            //else
-            //{
-            //    await _stockRepository.CreateAsync(stock);
-            //}
-            //}
+
+            if (stock == null)
+            {
+                stock = await _fMPService.FindStockBySymbolAsync(symbol);
+                if (stock == null)
+                {
+                    return BadRequest("Stock does not exists");
+                }
+                else
+                {
+                    await _stockRepository.CreateAsync(stock);
+                }
+            }
 
             if (stock == null) return BadRequest("Stock not found");
 

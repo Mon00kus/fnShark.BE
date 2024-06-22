@@ -109,6 +109,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Cors
+app.UseCors(x => x
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials()
+    .SetIsOriginAllowed(origin => true)
+    // .WithOrigins("https://localhost:44351))
+);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
