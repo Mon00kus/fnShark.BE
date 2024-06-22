@@ -46,7 +46,7 @@ namespace backend.Controllers
             return Ok(comment.ToCommentDto());
         }
 
-        [HttpPost("{symbol:alpha}")]
+        [HttpPost("{stockId:int}")]
         public async Task<IActionResult> Create([FromRoute] int stockId, CreateCommentDto commentDto)
         {
             if (!ModelState.IsValid)
